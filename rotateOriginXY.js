@@ -1,12 +1,21 @@
 // nodes: SceneNode[]
-// angle, offsetX, offsetY: number
-// unitTypeX, unitTypeY: string
+
+// The rotation of the node in degrees
+// angle: number
+
+// X and Y offset from upper left corner
+// offsetX, offsetY: number
+
+// Type of units
+// unitTypeX, unitTypeY: string ("px" or "%")
+
 
 /* Example */
 // const nodes = figma.currentPage.selection
 // rotateOriginXY(nodes, 45, 100, 10)
 // rotateOriginXY(nodes, 45, .5, 0, "%", "px")
 // rotateOriginXY(nodes, 45, 1, 0, "%", "%")
+
 
 function rotateOriginXY(nodes, angle = 0, offsetX = 0, offsetY = 0, unitTypeX = "px", unitTypeY = "px") {
 	// keep the position of the elements
