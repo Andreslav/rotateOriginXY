@@ -1,16 +1,14 @@
-// nodes: array
+// nodes: SceneNode[]
 // angle, offsetX, offsetY: number
 // unitTypeX, unitTypeY: string
 
-function rotateOriginXY(nodes, angle = 0, offsetX = 0, offsetY = 0, unitTypeX = "px", unitTypeY = "px") {
-	// relative position of the center of rotation
-	if (unitTypeX === "%") {
-		offsetX = group.width * offsetX
-	}
-	if (unitTypeY === "%") {
-		offsetY = group.height * offsetY
-	}
+/* Example */
+// const nodes = figma.currentPage.selection
+// rotateOriginXY(nodes, 45, 100, 10)
+// rotateOriginXY(nodes, 45, .5, 0, "%", "px")
+// rotateOriginXY(nodes, 45, 1, 0, "%", "%",)
 
+function rotateOriginXY(nodes, angle = 0, offsetX = 0, offsetY = 0, unitTypeX = "px", unitTypeY = "px") {
 	// keep the position of the elements
 	const parents = nodes.map(node => ({
 		id: node.id,
@@ -29,9 +27,17 @@ function rotateOriginXY(nodes, angle = 0, offsetX = 0, offsetY = 0, unitTypeX = 
 
 	const [[,,x2],[,,y2]] = group.absoluteTransform
 
+	// relative position of the center of rotation
+	if (unitTypeX === "%") {
+		offsetX = group.width * offsetX
+	}
+	if (unitTypeY === "%") {
+		offsetY = group.height * offsetY
+	}
+
 	// сorrect the position of the group after moving to frame
-	group.x -= (x2 - x1) + offsetX
-	group.y -= (y2 - y1) + offsetY
+	group.x -= (x2 - x1)
+	group.y -= (y2 - y1)
 
 	// change the center of rotation
 	group.x -= offsetX
