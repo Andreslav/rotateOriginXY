@@ -25,14 +25,14 @@ function rotateOriginXY(nodes, angle = 0, offsetX = 0, offsetY = 0, unitTypeX = 
 		index: getIndexNode(node)
 	}))
 
-	const group = figma.group(nodes, figma.currentPage)
+	var group = figma.group(nodes, figma.currentPage)
 	const [[,,x1],[,,y1]] = group.absoluteTransform
 
 	// using the frame, we will change the center of rotation
 	const frameNode = figma.createFrame()
+	frameNode.appendChild(group)
 	frameNode.x = x1
 	frameNode.y = y1
-	frameNode.appendChild(group)
 
 	const [[,,x2],[,,y2]] = group.absoluteTransform
 
@@ -56,27 +56,51 @@ function rotateOriginXY(nodes, angle = 0, offsetX = 0, offsetY = 0, unitTypeX = 
 
 	frameNode.rotation = angle
 
-	// return the elements to their original positions.
-	nodes.forEach(e => {
-		const [[,,x],[,,y]] = e.absoluteTransform
-		const p = parents.find(p => e.id === p.id)
-		if (p) {
-			p.parent.appendChild(e)
-		} else {
-			// never know what ..
-			figma.currentPage.appendChild(e)
-		}
-		e.rotation = angle
-		e.x = x
-		e.y = y
-	})
-
+	// get rid of the frame
+	const [[,,x3],[,,y3]] = group.absoluteTransform
+	figma.currentPage.appendChild(group)
 	frameNode.remove()
 
-	// get index
+	group.x = x3
+	group.y = y3
+	group.rotation = angle
+	
+	// shake out the nodes in a new not rotated group. Node rotation is maintained
+	group = figma.group(group.children, figma.currentPage)
+	const totalX = group.x, totalY = group.y
+	const totalWidth = group.width
+	const totalHeight = group.height
+
+	// return the elements to their original positions
+	nodes.forEach(n => {
+		let p = parents.find(p => p.id == n.id)
+
+		if (p) {
+			p.parent.insertChild(p.index, n)
+		} else {
+			// never know what ..
+			figma.currentPage.appendChild(n)
+		}
+
+		let [[, , x4], [, , y4]] = n.absoluteTransform
+		let [[, , x5], [, , y5]] = n.relativeTransform
+
+		n.x = n.x + x5 - x4
+		n.y = n.y + y5 - y4
+	})
+
+	
 	function getIndexNode(node) {
 		const id = node.id
 		const index = node.parent.children.findIndex(item => item.id === id)
 		return index < 0 ? 0 : index
+	}
+
+	// return total x, y, width, height all group elements
+	return {
+		x: totalX,
+		y: totalY,
+		width: totalWidth,
+		height: totalHeight,
 	}
 }
