@@ -25,8 +25,11 @@ function rotateOriginXY(nodes, angle = 0, offsetX = 0, offsetY = 0, unitTypeX = 
 		index: getIndexNode(node)
 	}))
 
+	// sort the nodes by index
+	nodes.sort((a, b) => getIndexNode(a) - getIndexNode(b))
+
 	var group = figma.group(nodes, figma.currentPage)
-	const [[,,x1],[,,y1]] = group.absoluteTransform
+	const [[, , x1], [, , y1]] = group.absoluteTransform
 
 	// using the frame, we will change the center of rotation
 	const frameNode = figma.createFrame()
@@ -34,7 +37,7 @@ function rotateOriginXY(nodes, angle = 0, offsetX = 0, offsetY = 0, unitTypeX = 
 	frameNode.x = x1
 	frameNode.y = y1
 
-	const [[,,x2],[,,y2]] = group.absoluteTransform
+	const [[, , x2], [, , y2]] = group.absoluteTransform
 
 	// relative position of the center of rotation
 	if (unitTypeX === "%") {
@@ -57,14 +60,14 @@ function rotateOriginXY(nodes, angle = 0, offsetX = 0, offsetY = 0, unitTypeX = 
 	frameNode.rotation = angle
 
 	// get rid of the frame
-	const [[,,x3],[,,y3]] = group.absoluteTransform
+	const [[, , x3], [, , y3]] = group.absoluteTransform
 	figma.currentPage.appendChild(group)
 	frameNode.remove()
 
 	group.x = x3
 	group.y = y3
 	group.rotation = angle
-	
+
 	// shake out the nodes in a new not rotated group. Node rotation is maintained
 	group = figma.group(group.children, figma.currentPage)
 	const totalX = group.x, totalY = group.y
@@ -89,7 +92,7 @@ function rotateOriginXY(nodes, angle = 0, offsetX = 0, offsetY = 0, unitTypeX = 
 		n.y = n.y + y5 - y4
 	})
 
-	
+
 	function getIndexNode(node) {
 		const id = node.id
 		const index = node.parent.children.findIndex(item => item.id === id)
